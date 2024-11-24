@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Viewer</title>
+  <title>Firebase Partial Data Viewer</title>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
@@ -11,21 +11,40 @@
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      line-height: 1.6;
     }
     pre {
       background-color: #f4f4f4;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
+      overflow-x: auto;
+    }
+    #error {
+      color: red;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <h1>Firebase Data Viewer</h1>
+  <button id="fetchData">Fetch Partial Data</button>
   <div>
-    <button id="fetchData">Fetch Data</button>
     <h2>Database Content:</h2>
-    <pre id="databaseOutput">Click "Fetch Data" to load content...</pre>
+    <pre id="databaseOutput">Click "Fetch Partial Data" to load a portion of the content...</pre>
+    <div id="error"></div>
   </div>
 
   <script>
@@ -45,17 +64,30 @@
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Fetch and display data
+    // Fetch and display a portion of the data
     document.getElementById('fetchData').addEventListener('click', () => {
       const dbRef = database.ref('/');
-      dbRef.once('value')
+      const outputElement = document.getElementById('databaseOutput');
+      const errorElement = document.getElementById('error');
+
+      // Clear previous content
+      outputElement.textContent = "Fetching data...";
+      errorElement.textContent = "";
+
+      dbRef.limitToFirst(5) // Fetch only the first 5 entries
+        .once('value')
         .then(snapshot => {
           const data = snapshot.val();
-          document.getElementById('databaseOutput').textContent = JSON.stringify(data, null, 2);
+          if (data) {
+            outputElement.textContent = JSON.stringify(data, null, 2);
+          } else {
+            outputElement.textContent = "No data found in the database.";
+          }
         })
         .catch(error => {
-          console.error("Error fetching data:", error);
-          document.getElementById('databaseOutput').textContent = "Error fetching data. Check console for details.";
+          // Display error message on the screen
+          errorElement.textContent = `Error: ${error.message}`;
+          outputElement.textContent = "";
         });
     });
   </script>
