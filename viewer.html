@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Viewer</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    pre {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Firebase Data Viewer</h1>
+  <div>
+    <button id="fetchData">Fetch Data</button>
+    <h2>Database Content:</h2>
+    <pre id="databaseOutput">Click "Fetch Data" to load content...</pre>
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      appId: "1:176227430389:web:94270de43b7eb971c03abc",
+      apiKey: "AIzaSyCPXTy7dt3fpcLd8kVTBtXy0xuBdeuhbFc",
+      projectId: "whitespider",
+      authDomain: "whitespider.firebaseapp.com",
+      databaseURL: "https://whitespider-default-rtdb.firebaseio.com",
+      storageBucket: "whitespider.appspot.com",
+      measurementId: "G-F72WBJT57S",
+      messagingSenderId: "176227430389"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Fetch and display data
+    document.getElementById('fetchData').addEventListener('click', () => {
+      const dbRef = database.ref('/');
+      dbRef.once('value')
+        .then(snapshot => {
+          const data = snapshot.val();
+          document.getElementById('databaseOutput').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+          console.error("Error fetching data:", error);
+          document.getElementById('databaseOutput').textContent = "Error fetching data. Check console for details.";
+        });
+    });
+  </script>
+</body>
+</html>
